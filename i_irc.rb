@@ -50,6 +50,11 @@ class IRC
 
       sleep 10
     end
+
+    # Wait until the connection is established
+    while !connected?
+      sleep 0.5
+    end
   end
 
   def send(msg)
