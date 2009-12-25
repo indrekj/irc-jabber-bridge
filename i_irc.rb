@@ -113,12 +113,14 @@ class IIrc
     )
 
     Thread.new do
-      sleep 0.1
-      
-      if @bot.connected? && item = bridge.shift(:irc)
-        user, msg = item
-        $logger.info "Received a message from the IRC queue: #{item.inspect}"
-        @bot.say_to_chan("[#{user}]: #{msg}")
+      loop do
+        sleep 0.1
+        
+        if @bot.connected? && item = bridge.shift(:irc)
+          user, msg = item
+          $logger.info "Received a message from the IRC queue: #{item.inspect}"
+          @bot.say_to_chan("[#{user}]: #{msg}")
+        end
       end
     end
 
