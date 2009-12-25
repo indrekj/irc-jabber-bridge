@@ -1,6 +1,6 @@
 require 'rubygems'
-require 'eventmachine'
 require 'socket'
+require 'queue'
 
 class IRC
   def initialize(opts = {})
@@ -12,6 +12,22 @@ class IRC
     @channel = opts[:channel]
     @bridge  = opts[:bridge]
     @connected = false
+
+    @to_irc_queue = Queue.new
+    add_message_listener
+  end
+
+  def add_message_listener
+    return if defined?(@message_listener)
+
+    @message_listener = Thread.new do
+      loop do
+        sleep 0.1
+        if connected? && msg = @to_irc_queue.pop
+          send_raw(msg)
+        end
+      end
+    end
   end
 
   def connected?
@@ -19,14 +35,31 @@ class IRC
   end
 
   def connect
-    @socket = TCPSocket.open(@server, @port)
-    @connected = true
-    send "USER #{@user} 0 * :#{@name}"
-    send "NICK #{@nick}"
-    send "JOIN #{@channel}"
+    Thread.new do
+      unless connected?
+        begin
+          @socket = TCPSocket.open(@server, @port)
+          @connected = true
+          send "USER #{@user} 0 * :#{@name}"
+          send "NICK #{@nick}"
+          send "JOIN #{@channel}"
+        rescue Exception => e
+          $logger.error "Something went wrong while connecting to irc"
+          $logger.error e
+        end
+      end
+
+      sleep 10
+    end
   end
 
   def send(msg)
+    @to_irc_queue << msg
+  end
+
+  # Use #send instead of this.
+  def send_raw(msg)
+    $logger.info "To irc: #{msg}"
     @socket.puts msg 
   end
 
@@ -58,8 +91,8 @@ class IRC
   end
 
   def quit
-    say "PART ##{@channel} :#{@nick}, Hell with this"
-    say 'QUIT'
+    send "PART ##{@channel} :#{@nick}, Hell with this"
+    send 'QUIT'
   end
 end
 
@@ -75,17 +108,17 @@ class IIrc
       :bridge  => bridge
     )
 
-    EM::run do
-      EM::PeriodicTimer.new(0.1) do
-        if @bot.connected? && item = bridge.shift(:irc)
-          user, msg = item
-          puts "Received a message from the IRC queue: #{item.inspect}"
-          @bot.say_to_chan("[#{user}]: #{msg}")
-        end
+    Thread.new do
+      sleep 0.1
+      
+      if @bot.connected? && item = bridge.shift(:irc)
+        user, msg = item
+        $logger.info "Received a message from the IRC queue: #{item.inspect}"
+        @bot.say_to_chan("[#{user}]: #{msg}")
       end
-    
-      @bot.connect
-      @bot.run
     end
+
+    @bot.connect
+    @bot.run
   end
 end

@@ -6,6 +6,7 @@ require 'i_jabber'
 require 'i_irc'
 
 $config = YAML.load_file(File.dirname(__FILE__) + '/config.yml')
+$logger = Logger.new(File.dirname(__FILE__) + '/bridge.log')
 
 class Bridge
   def initialize

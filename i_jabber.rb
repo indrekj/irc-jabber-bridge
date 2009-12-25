@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'jabbot'
-require 'eventmachine'
   
 include Jabbot::Handlers
 class IJabber
@@ -18,20 +17,20 @@ class IJabber
 
     handler = Jabbot::Handler.new do |msg, params|
       bridge.add([msg.user, msg.text], :irc)
-      puts "Sent a message to the IRC queue [#{msg.user}, #{msg.text}]"
+      $logger.info "Sent a message to the IRC queue [#{msg.user}, #{msg.text}]"
     end 
     @bot.handlers[:message] << handler
 
-    EM::run do
-      EM::PeriodicTimer.new(0.1) do
-        if @bot.connected? && item = bridge.shift(:jabber)
-          user, msg = item
-          puts "Received a message from the Jabber queue: #{item.inspect}"
-          @bot.send_message "[#{user}]: #{msg}"
-        end
-      end
+    Thread.new do
+      sleep 0.1
 
-      @bot.connect
+      if @bot.connected? && item = bridge.shift(:jabber)
+        user, msg = item
+        puts "Received a message from the Jabber queue: #{item.inspect}"
+        @bot.send_message "[#{user}]: #{msg}"
+      end
     end
+    
+    @bot.connect
   end
 end
