@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'socket'
-require 'queue'
 
 class IRC
   def initialize(opts = {})
