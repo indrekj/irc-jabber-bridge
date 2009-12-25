@@ -87,7 +87,7 @@ class IRC
 
         if channel == @channel
           @bridge.add([nick, text], :jabber)
-          puts "Sent a message to the Jabber queue [#{nick}, #{text}]"
+          $logger.info "Sent a message to the Jabber queue [#{nick}, #{text}]"
         end
       end
       sleep 0.1

@@ -22,12 +22,14 @@ class IJabber
     @bot.handlers[:message] << handler
 
     Thread.new do
-      sleep 0.1
+      loop do
+        sleep 0.1
 
-      if @bot.connected? && item = bridge.shift(:jabber)
-        user, msg = item
-        $logger.info "Received a message from the Jabber queue: #{item.inspect}"
-        @bot.send_message "[#{user}]: #{msg}"
+        if @bot.connected? && item = bridge.shift(:jabber)
+          user, msg = item
+          $logger.info "Received a message from the Jabber queue: #{item.inspect}"
+          @bot.send_message "[#{user}]: #{msg}"
+        end
       end
     end
     
