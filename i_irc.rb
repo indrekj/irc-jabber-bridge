@@ -74,6 +74,8 @@ class IRC
   def run
     until @socket.eof? do
       msg = @socket.gets
+      
+      $logger.info "IRC raw message: #{msg}"
 
       if msg.match(/^PING :(.*)$/)
         send "PONG #{$~[1]}"
