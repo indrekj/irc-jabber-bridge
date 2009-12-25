@@ -26,7 +26,7 @@ class IJabber
 
       if @bot.connected? && item = bridge.shift(:jabber)
         user, msg = item
-        puts "Received a message from the Jabber queue: #{item.inspect}"
+        $logger.info "Received a message from the Jabber queue: #{item.inspect}"
         @bot.send_message "[#{user}]: #{msg}"
       end
     end
