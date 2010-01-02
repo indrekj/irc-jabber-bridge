@@ -87,6 +87,10 @@ class IRC
         channel = $~[2].strip
         text    = $~[3].strip
 
+        if text =~ /^\001(\S+)(\s(.+))?\001/
+          text = $~[3] if $~[1] == 'ACTION'
+        end
+
         if channel == @channel
           @bridge.add([nick, text], :jabber)
           $logger.info "Sent a message to the Jabber queue [#{nick}, #{text}]"
