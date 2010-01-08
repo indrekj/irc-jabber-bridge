@@ -49,10 +49,21 @@ end
 bridge = Bridge.new
 
 Thread.new do
-  IJabber.start($config[:jabber], bridge)
+  begin
+    IJabber.start($config[:jabber], bridge)
+  rescue Exception => e
+    $logger.error e
+    $logger.error e.backtrace.join("\n")
+  end
 end
+
 Thread.new do
-  IIrc.start($config[:irc], bridge)
+  begin
+    IIrc.start($config[:irc], bridge)
+  rescue Exception => e
+    $logger.error e
+    $logger.error e.backtrace.join("\n")
+  end
 end
 
 loop do
