@@ -59,7 +59,7 @@ end
 
 Thread.new do
   begin
-    IIrc.start($config[:irc], bridge)
+    IIRC.start($config[:irc], bridge)
   rescue Exception => e
     $logger.error e
     $logger.error e.backtrace.join("\n")
