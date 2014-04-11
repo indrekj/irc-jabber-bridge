@@ -3,6 +3,7 @@
   :pw: 'asdf'
   :name: 'name'
   :conference_room: 'room@server.com'
+  :channel_password: 'funny channel password'
   :resource: 'resource'
   :port: 5222
   :master: 'master-jabber@adress.com'
