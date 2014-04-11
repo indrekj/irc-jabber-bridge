@@ -10,6 +10,7 @@ class IJabber
       :nick => config[:name],
       :server => config[:conference_room].split('@')[1],
       :channel => config[:conference_room].split('@')[0],
+	  :channel_password => config[:channel_password], 
       :resource => config[:resource]
     )
     
